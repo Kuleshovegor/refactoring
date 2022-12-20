@@ -1,5 +1,7 @@
 package ru.kuleshov.sd.servlet;
 
+import ru.kuleshov.sd.model.Product;
+
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -25,7 +27,8 @@ public class GetProductsServlet extends HttpServlet {
                 while (rs.next()) {
                     String  name = rs.getString("name");
                     int price  = rs.getInt("price");
-                    response.getWriter().println(name + "\t" + price + "</br>");
+                    Product product = new Product(name, price);
+                    response.getWriter().println(product.getName() + "\t" + product.getPrice() + "</br>");
                 }
                 response.getWriter().println("</body></html>");
 
