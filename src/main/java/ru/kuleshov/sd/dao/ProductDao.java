@@ -18,6 +18,22 @@ public class ProductDao {
 
     public ProductDao(String url) {
         this.url = url;
+        createProductTable();
+    }
+
+    private void createProductTable() {
+        try (Connection c = DriverManager.getConnection(url)) {
+            String sql = "CREATE TABLE IF NOT EXISTS PRODUCT" +
+                    "(ID INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL," +
+                    " NAME           TEXT    NOT NULL, " +
+                    " PRICE          INT     NOT NULL)";
+            Statement stmt = c.createStatement();
+
+            stmt.executeUpdate(sql);
+            stmt.close();
+        } catch (SQLException e) {
+            throw new RuntimeException(e);
+        }
     }
 
     public void addProduct(Product product) {

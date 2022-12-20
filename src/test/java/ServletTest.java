@@ -31,14 +31,6 @@ public class ServletTest {
     private final HttpServletRequest request = mock(HttpServletRequest.class);
     private final HttpServletResponse response = mock(HttpServletResponse.class);
 
-    @BeforeAll
-    public static void startBD() throws SQLException {
-        dbRequest("CREATE TABLE IF NOT EXISTS PRODUCT" +
-                "(ID INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL," +
-                " NAME           TEXT    NOT NULL, " +
-                " PRICE          INT     NOT NULL)");
-    }
-
     @AfterEach
     public void cleanBD() throws SQLException {
         dbRequest("DELETE FROM PRODUCT WHERE 1=1");
