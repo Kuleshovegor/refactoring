@@ -1,110 +1,56 @@
 package ru.kuleshov.sd.servlet;
 
+import ru.kuleshov.sd.dao.ProductDao;
 import ru.kuleshov.sd.model.Product;
 
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
-import java.sql.Connection;
-import java.sql.DriverManager;
-import java.sql.ResultSet;
-import java.sql.Statement;
 
 /**
  * @author akirakozov
  */
 public class QueryServlet extends HttpServlet {
+    private final ProductDao productDao;
+
+    public QueryServlet(ProductDao productDao) {
+        this.productDao = productDao;
+    }
+
     @Override
     protected void doGet(HttpServletRequest request, HttpServletResponse response) throws IOException {
         String command = request.getParameter("command");
 
         if ("max".equals(command)) {
-            try {
-                try (Connection c = DriverManager.getConnection("jdbc:sqlite:test.db")) {
-                    Statement stmt = c.createStatement();
-                    ResultSet rs = stmt.executeQuery("SELECT * FROM PRODUCT ORDER BY PRICE DESC LIMIT 1");
-                    response.getWriter().println("<html><body>");
-                    response.getWriter().println("<h1>Product with max price: </h1>");
+            Product product = productDao.getMaxPriceProduct();
 
-                    while (rs.next()) {
-                        String  name = rs.getString("name");
-                        int price  = rs.getInt("price");
-                        Product product = new Product(name, price);
-                        response.getWriter().println(product.getName() + "\t" + product.getPrice() + "</br>");
-                    }
-                    response.getWriter().println("</body></html>");
-
-                    rs.close();
-                    stmt.close();
-                }
-
-            } catch (Exception e) {
-                throw new RuntimeException(e);
-            }
+            response.getWriter().println("<html><body>");
+            response.getWriter().println("<h1>Product with max price: </h1>");
+            response.getWriter().println(product.getName() + "\t" + product.getPrice() + "</br>");
+            response.getWriter().println("</body></html>");
         } else if ("min".equals(command)) {
-            try {
-                try (Connection c = DriverManager.getConnection("jdbc:sqlite:test.db")) {
-                    Statement stmt = c.createStatement();
-                    ResultSet rs = stmt.executeQuery("SELECT * FROM PRODUCT ORDER BY PRICE LIMIT 1");
-                    response.getWriter().println("<html><body>");
-                    response.getWriter().println("<h1>Product with min price: </h1>");
+            Product product = productDao.getMinPriceProduct();
 
-                    while (rs.next()) {
-                        String  name = rs.getString("name");
-                        int price  = rs.getInt("price");
-                        Product product = new Product(name, price);
-                        response.getWriter().println(product.getName() + "\t" + product.getPrice() + "</br>");
-                    }
-                    response.getWriter().println("</body></html>");
-
-                    rs.close();
-                    stmt.close();
-                }
-
-            } catch (Exception e) {
-                throw new RuntimeException(e);
-            }
+            response.getWriter().println("<html><body>");
+            response.getWriter().println("<h1>Product with min price: </h1>");
+            response.getWriter().println(product.getName() + "\t" + product.getPrice() + "</br>");
+            response.getWriter().println("</body></html>");
         } else if ("sum".equals(command)) {
-            try {
-                try (Connection c = DriverManager.getConnection("jdbc:sqlite:test.db")) {
-                    Statement stmt = c.createStatement();
-                    ResultSet rs = stmt.executeQuery("SELECT SUM(price) FROM PRODUCT");
-                    response.getWriter().println("<html><body>");
-                    response.getWriter().println("Summary price: ");
+            int sum = productDao.getPricesSum();
 
-                    if (rs.next()) {
-                        response.getWriter().println(rs.getInt(1));
-                    }
-                    response.getWriter().println("</body></html>");
+            response.getWriter().println("<html><body>");
+            response.getWriter().println("Summary price: ");
+            response.getWriter().println(sum);
+            response.getWriter().println("</body></html>");
 
-                    rs.close();
-                    stmt.close();
-                }
-
-            } catch (Exception e) {
-                throw new RuntimeException(e);
-            }
         } else if ("count".equals(command)) {
-            try {
-                try (Connection c = DriverManager.getConnection("jdbc:sqlite:test.db")) {
-                    Statement stmt = c.createStatement();
-                    ResultSet rs = stmt.executeQuery("SELECT COUNT(*) FROM PRODUCT");
-                    response.getWriter().println("<html><body>");
-                    response.getWriter().println("Number of products: ");
+            int count = productDao.getProductCount();
 
-                    if (rs.next()) {
-                        response.getWriter().println(rs.getInt(1));
-                    }
-                    response.getWriter().println("</body></html>");
-
-                    rs.close();
-                    stmt.close();
-                }
-
-            } catch (Exception e) {
-                throw new RuntimeException(e);
-            }
+            response.getWriter().println("<html><body>");
+            response.getWriter().println("Number of products: ");
+            response.getWriter().println(count);
+            response.getWriter().println("</body></html>");
         } else {
             response.getWriter().println("Unknown command: " + command);
         }

@@ -1,45 +1,33 @@
 package ru.kuleshov.sd.servlet;
 
+import ru.kuleshov.sd.dao.ProductDao;
 import ru.kuleshov.sd.model.Product;
 
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
-import java.sql.Connection;
-import java.sql.DriverManager;
-import java.sql.ResultSet;
-import java.sql.Statement;
+import java.util.List;
 
 /**
  * @author akirakozov
  */
 public class GetProductsServlet extends HttpServlet {
+    private final ProductDao productDao;
+
+    public GetProductsServlet(ProductDao productDao) {
+        this.productDao = productDao;
+    }
 
     @Override
     protected void doGet(HttpServletRequest request, HttpServletResponse response) throws IOException {
-        try {
-            try (Connection c = DriverManager.getConnection("jdbc:sqlite:test.db")) {
-                Statement stmt = c.createStatement();
-                ResultSet rs = stmt.executeQuery("SELECT * FROM PRODUCT");
-                response.getWriter().println("<html><body>");
+        List<Product> products = productDao.getAllProducts();
 
-                while (rs.next()) {
-                    String  name = rs.getString("name");
-                    int price  = rs.getInt("price");
-                    Product product = new Product(name, price);
-                    response.getWriter().println(product.getName() + "\t" + product.getPrice() + "</br>");
-                }
-                response.getWriter().println("</body></html>");
-
-                rs.close();
-                stmt.close();
-            }
-
-        } catch (Exception e) {
-            throw new RuntimeException(e);
+        response.getWriter().println("<html><body>");
+        for (Product product : products) {
+            response.getWriter().println(product.getName() + "\t" + product.getPrice() + "</br>");
         }
-
+        response.getWriter().println("</body></html>");
         response.setContentType("text/html");
         response.setStatus(HttpServletResponse.SC_OK);
     }

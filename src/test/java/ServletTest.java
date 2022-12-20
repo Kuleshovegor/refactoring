@@ -2,6 +2,7 @@ import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
+import ru.kuleshov.sd.dao.ProductDao;
 import ru.kuleshov.sd.servlet.AddProductServlet;
 import ru.kuleshov.sd.servlet.GetProductsServlet;
 import ru.kuleshov.sd.servlet.QueryServlet;
@@ -24,8 +25,10 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
 public class ServletTest {
-    private final HttpServletRequest request = mock(HttpServletRequest.class);
+    private static final String TEST_DATABASE_URL = "jdbc:sqlite:test2.db";
 
+    private final ProductDao productDao = new ProductDao(TEST_DATABASE_URL);
+    private final HttpServletRequest request = mock(HttpServletRequest.class);
     private final HttpServletResponse response = mock(HttpServletResponse.class);
 
     @BeforeAll
@@ -118,7 +121,7 @@ public class ServletTest {
                 "<html><body>" + System.lineSeparator() +
                         body +
                         "</body></html>" + System.lineSeparator(),
-                doRequest(new QueryServlet(), parameters)
+                doRequest(new QueryServlet(productDao), parameters)
         );
     }
 
@@ -127,15 +130,15 @@ public class ServletTest {
         parameters.put("name", name);
         parameters.put("price", String.valueOf(price));
 
-        Assertions.assertEquals("OK", doRequest(new AddProductServlet(), parameters).trim());
+        Assertions.assertEquals("OK", doRequest(new AddProductServlet(productDao), parameters).trim());
     }
 
     private String getRequest() throws IOException, ServletException {
-        return doRequest(new GetProductsServlet(), new HashMap<>());
+        return doRequest(new GetProductsServlet(productDao), new HashMap<>());
     }
 
     private static void dbRequest(String sql) throws SQLException {
-        try (Connection c = DriverManager.getConnection("jdbc:sqlite:test.db")) {
+        try (Connection c = DriverManager.getConnection(TEST_DATABASE_URL)) {
             Statement stmt = c.createStatement();
 
             stmt.executeUpdate(sql);

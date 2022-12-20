@@ -1,37 +1,29 @@
 package ru.kuleshov.sd.servlet;
 
+import ru.kuleshov.sd.dao.ProductDao;
 import ru.kuleshov.sd.model.Product;
 
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
-import java.sql.Connection;
-import java.sql.DriverManager;
-import java.sql.Statement;
 
 /**
  * @author akirakozov
  */
 public class AddProductServlet extends HttpServlet {
+    private final ProductDao productDao;
+
+    public AddProductServlet(ProductDao productDao) {
+        this.productDao = productDao;
+    }
 
     @Override
     protected void doGet(HttpServletRequest request, HttpServletResponse response) throws IOException {
         String name = request.getParameter("name");
         long price = Long.parseLong(request.getParameter("price"));
-        Product product = new Product(name, price);
 
-        try {
-            try (Connection c = DriverManager.getConnection("jdbc:sqlite:test.db")) {
-                String sql = "INSERT INTO PRODUCT " +
-                        "(NAME, PRICE) VALUES (\"" + product.getName() + "\"," + product.getPrice() + ")";
-                Statement stmt = c.createStatement();
-                stmt.executeUpdate(sql);
-                stmt.close();
-            }
-        } catch (Exception e) {
-            throw new RuntimeException(e);
-        }
+        productDao.addProduct(new Product(name, price));
 
         response.setContentType("text/html");
         response.setStatus(HttpServletResponse.SC_OK);
