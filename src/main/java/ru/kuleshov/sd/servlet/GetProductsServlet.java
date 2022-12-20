@@ -1,6 +1,8 @@
 package ru.kuleshov.sd.servlet;
 
 import ru.kuleshov.sd.dao.ProductDao;
+import ru.kuleshov.sd.html.ContentType;
+import ru.kuleshov.sd.html.HtmlWriter;
 import ru.kuleshov.sd.model.Product;
 
 import javax.servlet.http.HttpServlet;
@@ -22,13 +24,15 @@ public class GetProductsServlet extends HttpServlet {
     @Override
     protected void doGet(HttpServletRequest request, HttpServletResponse response) throws IOException {
         List<Product> products = productDao.getAllProducts();
+        HtmlWriter htmlWriter = new HtmlWriter(response.getWriter());
 
-        response.getWriter().println("<html><body>");
+        htmlWriter.printlnStart();
         for (Product product : products) {
-            response.getWriter().println(product.getName() + "\t" + product.getPrice() + "</br>");
+            htmlWriter.printlnProduct(product);
         }
-        response.getWriter().println("</body></html>");
-        response.setContentType("text/html");
+        htmlWriter.printlnEnd();
+
+        response.setContentType(ContentType.TEXT_HTML);
         response.setStatus(HttpServletResponse.SC_OK);
     }
 }

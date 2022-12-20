@@ -1,6 +1,7 @@
 package ru.kuleshov.sd.servlet;
 
 import ru.kuleshov.sd.dao.ProductDao;
+import ru.kuleshov.sd.html.ContentType;
 import ru.kuleshov.sd.model.Product;
 
 import javax.servlet.http.HttpServlet;
@@ -25,7 +26,7 @@ public class AddProductServlet extends HttpServlet {
 
         productDao.addProduct(new Product(name, price));
 
-        response.setContentType("text/html");
+        response.setContentType(ContentType.TEXT_HTML);
         response.setStatus(HttpServletResponse.SC_OK);
         response.getWriter().println("OK");
     }
